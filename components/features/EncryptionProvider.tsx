@@ -41,6 +41,7 @@ export function EncryptionProvider({
 
   useEffect(() => {
     checkEncryptionStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkEncryptionStatus = async () => {

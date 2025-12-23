@@ -1,18 +1,23 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Pressable,
   StyleSheet,
-  Alert,
-  ScrollView,
+  Pressable,
   Image,
-  ActivityIndicator,
+  ScrollView,
+  Alert,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+} from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase/client";
 import { getRandomMicrocopy } from "@/lib/microcopies";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 interface ProfileClientProps {
   userName: string;
@@ -29,12 +34,52 @@ export function ProfileClient({
   const [isSigningOut, setIsSigningOut] = useState(false);
   const router = useRouter();
 
+  // Animation values
+  const headerOpacity = useSharedValue(0);
+  const cardOpacity = useSharedValue(0);
+  const cardScale = useSharedValue(0.95);
+  const actionsOpacity = useSharedValue(0);
+  const warningOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    // Orchestrated entrance animations
+    headerOpacity.value = withTiming(1, { duration: 400 });
+
+    cardOpacity.value = withDelay(100, withTiming(1, { duration: 400 }));
+    cardScale.value = withDelay(100, withSpring(1, { damping: 12 }));
+
+    actionsOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
+    warningOpacity.value = withDelay(500, withTiming(1, { duration: 400 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+  }));
+
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [{ scale: cardScale.value }],
+  }));
+
+  const actionsStyle = useAnimatedStyle(() => ({
+    opacity: actionsOpacity.value,
+  }));
+
+  const warningStyle = useAnimatedStyle(() => ({
+    opacity: warningOpacity.value,
+  }));
+
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
       await supabase.auth.signOut();
-      router.replace("/");
-    } catch (error) {
+      Alert.alert(
+        "Signed out",
+        "Hope to see you back in the quiet space soon."
+      );
+      router.replace("/welcome");
+    } catch {
       Alert.alert("Error", getRandomMicrocopy("error"));
     } finally {
       setIsSigningOut(false);
@@ -43,29 +88,33 @@ export function ProfileClient({
 
   const handleDeleteAccount = async () => {
     Alert.alert(
-      "Delete Account",
+      "Delete Account?",
       "Are you sure you want to delete your account? This will mark your data as inaccessible.",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
             setIsDeleting(true);
             try {
-              // Call your delete API endpoint here
-              const response = await fetch("/api/profile/delete", {
-                method: "POST",
-              });
-              if (response.ok) {
-                router.replace("/");
-              } else {
-                throw new Error("Failed to delete account");
+              // Mark user as deleted
+              const {
+                data: { user },
+              } = await supabase.auth.getUser();
+              if (user) {
+                // Update all entries to be deleted
+                await supabase
+                  .from("entries")
+                  .update({ is_deleted: true })
+                  .eq("user_id", user.id);
+
+                // Sign out
+                await supabase.auth.signOut();
+                Alert.alert("Account Deleted", getRandomMicrocopy("deleting"));
+                router.replace("/welcome");
               }
-            } catch (error) {
+            } catch {
               Alert.alert("Error", getRandomMicrocopy("error"));
             } finally {
               setIsDeleting(false);
@@ -77,23 +126,29 @@ export function ProfileClient({
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Animated.View entering={FadeIn.duration(400)} style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()}>
-            <Text style={styles.backButton}>← Back</Text>
-          </Pressable>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <View style={{ width: 50 }} />
-        </View>
-
-        {/* Profile Card */}
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(400)}
-          style={styles.profileCard}
+    <View style={styles.container}>
+      {/* Header */}
+      <Animated.View style={[styles.header, headerStyle]}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          hitSlop={10}
         >
-          <View style={styles.profileInfo}>
+          <Text style={styles.backText}>← Back</Text>
+        </Pressable>
+        <Text style={styles.headerTitle}>Profile</Text>
+        <View style={styles.spacer} />
+      </Animated.View>
+
+      {/* Content */}
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Card */}
+        <Animated.View style={[styles.profileCard, cardStyle]}>
+          <View style={styles.profileContent}>
             {userImage ? (
               <Image source={{ uri: userImage }} style={styles.avatar} />
             ) : (
@@ -101,7 +156,7 @@ export function ProfileClient({
                 <Text style={styles.avatarText}>{userName[0]}</Text>
               </View>
             )}
-            <View style={styles.nameContainer}>
+            <View style={styles.userInfo}>
               <Text style={styles.userName}>{userName}</Text>
               <Text style={styles.userEmail}>{userEmail}</Text>
             </View>
@@ -109,24 +164,19 @@ export function ProfileClient({
         </Animated.View>
 
         {/* Account Actions */}
-        <View style={styles.actions}>
+        <Animated.View style={[styles.actions, actionsStyle]}>
           <Pressable
             onPress={handleSignOut}
             disabled={isSigningOut}
             style={({ pressed }) => [
               styles.actionButton,
-              styles.signOutButton,
-              pressed && styles.buttonPressed,
+              pressed && styles.actionButtonPressed,
             ]}
           >
             <Text style={styles.actionIcon}>🚪</Text>
-            {isSigningOut ? (
-              <ActivityIndicator color="#f4f4f5" />
-            ) : (
-              <Text style={styles.actionText}>
-                {isSigningOut ? "Signing Out..." : "Sign Out"}
-              </Text>
-            )}
+            <Text style={styles.actionText}>
+              {isSigningOut ? "Signing Out..." : "Sign Out"}
+            </Text>
           </Pressable>
 
           <Pressable
@@ -135,34 +185,27 @@ export function ProfileClient({
             style={({ pressed }) => [
               styles.actionButton,
               styles.deleteButton,
-              pressed && styles.buttonPressed,
+              pressed && styles.actionButtonPressed,
             ]}
           >
             <Text style={styles.actionIcon}>🗑️</Text>
-            {isDeleting ? (
-              <ActivityIndicator color="#fef2f2" />
-            ) : (
-              <Text style={styles.deleteText}>
-                {isDeleting ? "Deleting..." : "Delete Account"}
-              </Text>
-            )}
+            <Text style={[styles.actionText, styles.deleteText]}>
+              {isDeleting ? "Deleting..." : "Delete Account"}
+            </Text>
           </Pressable>
-        </View>
+        </Animated.View>
 
         {/* Warning */}
-        <Animated.View
-          entering={FadeInDown.delay(300).duration(500)}
-          style={styles.warning}
-        >
+        <Animated.View style={[styles.warning, warningStyle]}>
           <Text style={styles.warningText}>
-            <Text style={styles.warningBold}>Gentle Reminder:</Text> Deleting
-            your account will mark it as deleted and sign you out. Your thoughts
-            will remain encrypted in the quiet of the database, but you will no
-            longer have the key to visit them.
+            <Text style={styles.warningBold}>Gentle Reminder: </Text>
+            Deleting your account will mark it as deleted and sign you out. Your
+            thoughts will remain encrypted in the quiet of the database, but you
+            will no longer have the key to visit them.
           </Text>
         </Animated.View>
-      </Animated.View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -171,127 +214,139 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#09090b",
   },
-  content: {
-    flex: 1,
-    maxWidth: 672,
-    alignSelf: "center",
-    width: "100%",
-    paddingHorizontal: 16,
-  },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 24,
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 16,
   },
   backButton: {
-    fontSize: 24,
+    padding: 8,
+  },
+  backText: {
+    fontSize: 16,
+    fontFamily: "Nunito_700Bold",
     color: "#6366F1",
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "600",
+    fontFamily: "Nunito_700Bold",
     color: "#f4f4f5",
   },
+  spacer: {
+    width: 40,
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 32,
+  },
   profileCard: {
-    backgroundColor: "rgba(39, 39, 42, 0.2)",
+    backgroundColor: "rgba(24, 24, 27, 0.6)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.05)",
+    borderColor: "rgba(99, 102, 241, 0.2)",
     borderRadius: 24,
     padding: 32,
     marginBottom: 24,
+    shadowColor: "#6366F1",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  profileInfo: {
+  profileContent: {
     alignItems: "center",
-    gap: 16,
   },
   avatar: {
     width: 96,
     height: 96,
     borderRadius: 48,
     borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(99, 102, 241, 0.3)",
+    marginBottom: 16,
   },
   avatarPlaceholder: {
     width: 96,
     height: 96,
     borderRadius: 48,
     borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.05)",
-    backgroundColor: "rgba(39, 39, 42, 0.3)",
+    borderColor: "rgba(63, 63, 70, 0.5)",
+    backgroundColor: "rgba(39, 39, 42, 0.5)",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 16,
   },
   avatarText: {
     fontSize: 36,
-    fontWeight: "700",
+    fontFamily: "Nunito_700Bold",
     color: "#a1a1aa",
   },
-  nameContainer: {
+  userInfo: {
     alignItems: "center",
   },
   userName: {
     fontSize: 24,
-    fontWeight: "700",
+    fontFamily: "Nunito_700Bold",
     color: "#f4f4f5",
+    marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
+    fontFamily: "Nunito_400Regular",
     color: "#a1a1aa",
-    marginTop: 4,
   },
   actions: {
     gap: 12,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: 12,
-    borderRadius: 999,
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-  },
-  signOutButton: {
+    backgroundColor: "rgba(24, 24, 27, 0.6)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    backgroundColor: "transparent",
+    borderColor: "rgba(63, 63, 70, 0.5)",
+    borderRadius: 24,
+    padding: 20,
+    gap: 12,
+  },
+  actionButtonPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
   deleteButton: {
-    backgroundColor: "rgba(239, 68, 68, 0.8)",
-  },
-  buttonPressed: {
-    opacity: 0.8,
+    borderColor: "rgba(239, 68, 68, 0.3)",
+    backgroundColor: "rgba(239, 68, 68, 0.05)",
   },
   actionIcon: {
     fontSize: 20,
   },
   actionText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontFamily: "Nunito_700Bold",
     color: "#f4f4f5",
   },
   deleteText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#fef2f2",
+    color: "#ef4444",
   },
   warning: {
     backgroundColor: "rgba(239, 68, 68, 0.05)",
     borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.1)",
+    borderColor: "rgba(239, 68, 68, 0.2)",
     borderRadius: 24,
-    padding: 24,
+    padding: 20,
   },
   warningText: {
     fontSize: 14,
-    color: "rgba(239, 68, 68, 0.8)",
-    lineHeight: 20,
+    fontFamily: "Nunito_400Regular",
+    color: "#fca5a5",
+    lineHeight: 22,
   },
   warningBold: {
-    fontWeight: "700",
+    fontFamily: "Nunito_700Bold",
     color: "#ef4444",
   },
 });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, Pressable, Alert, Image } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-import { useRouter, Link } from "expo-router";
+import Animated, { FadeIn, FadeInDown, ZoomIn } from "react-native-reanimated";
+import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase/client";
 import { useEncryption } from "@/components/features/EncryptionProvider";
 import { decryptContent } from "@/lib/crypto";
@@ -15,6 +15,31 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/Card";
+import * as Haptics from "expo-haptics";
+
+const useHaptics = () => ({
+  selection: () => {
+    Haptics.selectionAsync?.().catch?.(() => {});
+  },
+  medium: () => {
+    Haptics.impactAsync?.(Haptics.ImpactFeedbackStyle?.Medium).catch?.(
+      () => {}
+    );
+  },
+  heavy: () => {
+    Haptics.impactAsync?.(Haptics.ImpactFeedbackStyle?.Heavy).catch?.(() => {});
+  },
+  success: () => {
+    Haptics.notificationAsync?.(
+      Haptics.NotificationFeedbackType?.Success
+    ).catch?.(() => {});
+  },
+  error: () => {
+    Haptics.notificationAsync?.(
+      Haptics.NotificationFeedbackType?.Error
+    ).catch?.(() => {});
+  },
+});
 
 export interface JournalEntry {
   id: string;
@@ -41,6 +66,7 @@ export function JournalHome({
   const [isDecrypting, setIsDecrypting] = useState(entries.length > 0);
   const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
   const router = useRouter();
+  const haptics = useHaptics();
 
   // Load user preferences on mount
   useEffect(() => {
@@ -54,6 +80,7 @@ export function JournalHome({
 
   // Save view mode preference when it changes
   const handleViewModeChange = async (mode: "grid" | "list") => {
+    haptics.selection();
     setViewMode(mode);
     await updatePreference("viewMode", mode);
   };
@@ -124,15 +151,21 @@ export function JournalHome({
   };
 
   const handleDelete = (id: string) => {
+    haptics.heavy();
     Alert.alert(
       "Let go of this moment?",
       "This entry will be moved to trash.",
       [
-        { text: "Keep it", style: "cancel" },
+        {
+          text: "Keep it",
+          style: "cancel",
+          onPress: () => haptics.selection(),
+        },
         {
           text: "Yes, let go",
           style: "destructive",
           onPress: async () => {
+            haptics.medium();
             try {
               const { error } = await supabase
                 .from("entries")
@@ -140,13 +173,16 @@ export function JournalHome({
                 .eq("id", id);
 
               if (error) {
+                haptics.error();
                 console.error("Delete error:", error);
                 Alert.alert("Error", getRandomMicrocopy("error"));
                 return;
               }
 
+              haptics.success();
               setDecryptedEntries((prev) => prev.filter((e) => e.id !== id));
             } catch (err) {
+              haptics.error();
               console.error("Delete error:", err);
               Alert.alert("Error", getRandomMicrocopy("error"));
             }
@@ -170,7 +206,10 @@ export function JournalHome({
     <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
       <Card
         className={viewMode === "grid" ? "mb-4" : "mb-3"}
-        onPress={() => router.push(`/journal/${entry.id}`)}
+        onPress={() => {
+          haptics.selection();
+          router.push(`/journal/${entry.id}`);
+        }}
         onLongPress={() => handleDelete(entry.id)}
       >
         <CardHeader>
@@ -206,7 +245,13 @@ export function JournalHome({
             </Text>
           </View>
 
-          <Pressable onPress={() => router.push("/profile")}>
+          <Pressable
+            onPress={() => {
+              haptics.selection();
+              router.push("/profile");
+            }}
+            hitSlop={10}
+          >
             {userImage ? (
               <Image
                 source={{ uri: userImage }}
@@ -233,8 +278,8 @@ export function JournalHome({
             <Text
               className={
                 viewMode === "grid"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
+                  ? "text-foreground font-sans font-medium"
+                  : "text-muted-foreground font-sans font-medium"
               }
             >
               Grid
@@ -249,8 +294,8 @@ export function JournalHome({
             <Text
               className={
                 viewMode === "list"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
+                  ? "text-foreground font-sans font-medium"
+                  : "text-muted-foreground font-sans font-medium"
               }
             >
               List
@@ -277,7 +322,10 @@ export function JournalHome({
             Capture your thoughts, ideas, and memories. Your space, your rules.
           </Text>
           <Button
-            onPress={() => router.push("/journal/new")}
+            onPress={() => {
+              haptics.medium();
+              router.push("/journal/new");
+            }}
             className="rounded-full px-8 h-12"
           >
             Start Writing
@@ -286,14 +334,17 @@ export function JournalHome({
       ) : (
         <>
           {/* Daily Prompt */}
-          <View className="mx-4 mb-4 p-4 rounded-2xl bg-secondary/20 border border-border">
+          <Animated.View
+            entering={FadeInDown.delay(100).duration(500)}
+            className="mx-4 mb-4 p-4 rounded-2xl bg-secondary/20 border border-border"
+          >
             <Text className="text-base font-heading font-semibold text-foreground mb-1">
               Daily Prompt
             </Text>
             <Text className="text-muted-foreground font-sans italic">
-              "{getRandomMicrocopy("prompts")}"
+              &ldquo;{getRandomMicrocopy("prompts")}&rdquo;
             </Text>
-          </View>
+          </Animated.View>
 
           <FlatList
             data={decryptedEntries}
@@ -303,17 +354,28 @@ export function JournalHome({
             numColumns={viewMode === "grid" ? 2 : 1}
             key={viewMode}
             columnWrapperClassName={viewMode === "grid" ? "gap-4" : undefined}
+            showsVerticalScrollIndicator={false}
           />
         </>
       )}
 
       {/* FAB */}
-      <Pressable
-        onPress={() => router.push("/journal/new")}
-        className="absolute bottom-8 right-6 w-16 h-16 rounded-full bg-foreground items-center justify-center shadow-lg"
+      <Animated.View
+        entering={ZoomIn.delay(500).duration(400)}
+        className="absolute bottom-8 right-6"
       >
-        <Text className="text-background text-3xl font-bold">+</Text>
-      </Pressable>
+        <Pressable
+          onPress={() => {
+            haptics.medium();
+            router.push("/journal/new");
+          }}
+          className="w-16 h-16 rounded-full bg-foreground items-center justify-center shadow-lg shadow-black/50 active:scale-95 transition-transform"
+        >
+          <Text className="text-background text-3xl font-bold font-sans pb-1">
+            +
+          </Text>
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }

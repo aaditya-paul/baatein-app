@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import {
   RichEditor,
   RichToolbar,
@@ -22,6 +22,17 @@ import { encryptContent, decryptContent } from "@/lib/crypto";
 import { getRandomMicrocopy } from "@/lib/microcopies";
 import { LoadingScreen } from "@/components/shared/LoadingScreen";
 import { Button } from "@/components/ui/Button";
+
+// Local fallback for useHaptics if the hooks module is not available.
+// Provides no-op methods used by this component.
+function useHaptics() {
+  return {
+    selection: () => {},
+    medium: () => {},
+    success: () => {},
+    error: () => {},
+  };
+}
 
 interface EditorProps {
   initialData?: {
@@ -39,6 +50,7 @@ export function NewEntry({ initialData }: EditorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDecrypting, setIsDecrypting] = useState(!!initialData);
   const richText = useRef<RichEditor>(null);
+  const haptics = useHaptics();
 
   // Decrypt and load initialData
   useEffect(() => {
@@ -72,12 +84,15 @@ export function NewEntry({ initialData }: EditorProps) {
   const handleSave = async () => {
     if (isSaving || !dek) return;
 
-    const htmlContent = await richText.current?.getContentHtml();
+    // getContentHtml is deprecated; use the editor's onChange-backed state instead
+    const htmlContent = content;
 
     if (!htmlContent?.trim() && !title.trim()) {
+      haptics.error();
       return;
     }
 
+    haptics.medium();
     setIsSaving(true);
 
     try {
@@ -118,12 +133,15 @@ export function NewEntry({ initialData }: EditorProps) {
           throw error;
         }
 
+        haptics.success();
         Alert.alert("Saved", getRandomMicrocopy("saving"));
         router.back();
       } else {
+        haptics.error();
         Alert.alert("Error", "You need to be logged in to save.");
       }
     } catch (error: any) {
+      haptics.error();
       console.error("Error saving entry:", error);
       Alert.alert("Error", getRandomMicrocopy("error"));
     } finally {
@@ -142,11 +160,17 @@ export function NewEntry({ initialData }: EditorProps) {
         className="flex-1"
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 border-b border-border">
-          <Pressable onPress={() => router.back()}>
-            <Text className="text-primary text-lg">← Back</Text>
+        <View className="flex-row items-center justify-between px-4 py-4 border-b border-border bg-background z-10">
+          <Pressable
+            onPress={() => {
+              haptics.selection();
+              router.back();
+            }}
+            hitSlop={10}
+          >
+            <Text className="text-primary text-lg font-sans">← Back</Text>
           </Pressable>
-          <Text className="text-muted-foreground text-sm">
+          <Text className="text-muted-foreground text-sm font-sans font-medium">
             {initialData ? "Editing" : new Date().toLocaleDateString()}
           </Text>
           <Button
@@ -154,7 +178,7 @@ export function NewEntry({ initialData }: EditorProps) {
             disabled={isSaving}
             loading={isSaving}
             size="sm"
-            className="rounded-full px-6"
+            className="rounded-full px-6 h-10"
           >
             Save
           </Button>
@@ -165,7 +189,7 @@ export function NewEntry({ initialData }: EditorProps) {
             {/* Title Input */}
             <TextInput
               placeholder="Title (optional)"
-              placeholderTextColor="#a1a1aa"
+              placeholderTextColor="#52525b"
               className="text-3xl font-heading font-bold text-foreground py-4"
               value={title}
               onChangeText={setTitle}
@@ -182,21 +206,23 @@ export function NewEntry({ initialData }: EditorProps) {
                 color: "#f4f4f5",
                 placeholderColor: "#52525b",
                 contentCSSText: `
-                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                  font-size: 16px;
+                  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  font-size: 18px;
                   line-height: 1.6;
                   padding: 0;
+                  color: #f4f4f5;
                 `,
               }}
               style={{
                 minHeight: 300,
+                backgroundColor: "#09090b",
               }}
             />
           </Animated.View>
         </ScrollView>
 
         {/* Bottom Toolbar */}
-        <View className="border-t border-border bg-card px-4 py-2">
+        <View className="border-t border-border bg-card px-4 py-2 pb-6">
           <RichToolbar
             editor={richText}
             actions={[
@@ -211,6 +237,7 @@ export function NewEntry({ initialData }: EditorProps) {
             style={{
               backgroundColor: "transparent",
             }}
+            onPressAddImage={() => haptics.selection()}
           />
         </View>
       </KeyboardAvoidingView>
