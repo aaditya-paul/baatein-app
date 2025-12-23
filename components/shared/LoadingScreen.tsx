@@ -167,22 +167,22 @@ const styles = StyleSheet.create({
   orb: {
     position: "absolute",
     borderRadius: 9999,
-    backgroundColor: "#6366F1",
+    backgroundColor: "#27272a",
   },
   orb1: {
     width: 120,
     height: 120,
-    backgroundColor: "rgba(99, 102, 241, 0.15)",
+    backgroundColor: "rgba(39, 39, 42, 0.15)",
   },
   orb2: {
     width: 100,
     height: 100,
-    backgroundColor: "rgba(139, 92, 246, 0.15)",
+    backgroundColor: "rgba(39, 39, 42, 0.12)",
   },
   orb3: {
     width: 80,
     height: 80,
-    backgroundColor: "rgba(168, 85, 247, 0.15)",
+    backgroundColor: "rgba(39, 39, 42, 0.10)",
   },
   spinnerContainer: {
     marginBottom: 40,
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 4,
-    borderColor: "rgba(99, 102, 241, 0.1)",
+    borderColor: "rgba(39, 39, 42, 0.3)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -205,17 +205,17 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   segment1: {
-    borderTopColor: "#6366F1",
-    borderRightColor: "#6366F1",
+    borderTopColor: "#a1a1aa",
+    borderRightColor: "#a1a1aa",
   },
   segment2: {
-    borderBottomColor: "#8B5CF6",
-    borderLeftColor: "#8B5CF6",
+    borderBottomColor: "#71717a",
+    borderLeftColor: "#71717a",
     transform: [{ rotate: "120deg" }],
   },
   segment3: {
-    borderTopColor: "#A855F7",
-    borderRightColor: "#A855F7",
+    borderTopColor: "#52525b",
+    borderRightColor: "#52525b",
     transform: [{ rotate: "240deg" }],
   },
   message: {

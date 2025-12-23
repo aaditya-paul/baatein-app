@@ -124,7 +124,7 @@ export function PinSetup({ onComplete }: PinSetupProps) {
                 ]}
               >
                 {loading ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color="#f4f4f5" />
                 ) : (
                   <Text style={styles.buttonText}>
                     {loading ? "Setting up..." : "Continue"}
@@ -170,10 +170,12 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
+    backgroundColor: "rgba(39, 39, 42, 0.6)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(63, 63, 70, 0.6)",
   },
   icon: {
     fontSize: 32,
@@ -217,11 +219,11 @@ const styles = StyleSheet.create({
   },
   error: {
     fontSize: 14,
-    color: "#ef4444",
+    color: "#fca5a5",
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#6366F1",
+    backgroundColor: "#27272a",
     height: 56,
     borderRadius: 999,
     alignItems: "center",
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   buttonText: {
-    color: "#fff",
+    color: "#f4f4f5",
     fontSize: 16,
     fontWeight: "600",
   },

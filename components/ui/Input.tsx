@@ -34,7 +34,7 @@ export function Input({
   const scale = useSharedValue(1);
 
   const animatedInputStyle = useAnimatedStyle(() => ({
-    borderColor: borderColor.value === 1 ? "#6366F1" : "#27272a",
+    borderColor: borderColor.value === 1 ? "#a1a1aa" : "#27272a",
     transform: [{ scale: scale.value }],
   }));
 
@@ -93,12 +93,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputError: {
-    borderColor: "#ef4444",
+    borderColor: "#7f1d1d",
   },
   error: {
     fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "#ef4444",
+    color: "#fca5a5",
     marginTop: 6,
   },
 });

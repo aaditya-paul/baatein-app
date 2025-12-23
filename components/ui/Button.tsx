@@ -78,7 +78,7 @@ export function Button({
     >
       {loading && (
         <ActivityIndicator
-          color={variant === "default" ? "#fff" : "#f4f4f5"}
+          color={variant === "destructive" ? "#fef2f2" : "#f4f4f5"}
           style={styles.loader}
         />
       )}
@@ -97,16 +97,16 @@ const styles = StyleSheet.create({
   },
   // Variants
   variant_default: {
-    backgroundColor: "#6366F1",
-    shadowColor: "#6366F1",
+    backgroundColor: "#27272a",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   variant_destructive: {
-    backgroundColor: "#ef4444",
-    shadowColor: "#ef4444",
+    backgroundColor: "#7f1d1d",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -118,7 +118,9 @@ const styles = StyleSheet.create({
     borderColor: "#3f3f46",
   },
   variant_secondary: {
-    backgroundColor: "#27272a",
+    backgroundColor: "#18181b",
+    borderWidth: 1,
+    borderColor: "#27272a",
   },
   variant_ghost: {
     backgroundColor: "transparent",
@@ -147,16 +149,16 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   text_default: {
-    color: "#fff",
+    color: "#f4f4f5",
   },
   text_destructive: {
-    color: "#fff",
+    color: "#fef2f2",
   },
   text_outline: {
     color: "#f4f4f5",
   },
   text_secondary: {
-    color: "#f4f4f5",
+    color: "#e4e4e7",
   },
   text_ghost: {
     color: "#f4f4f5",

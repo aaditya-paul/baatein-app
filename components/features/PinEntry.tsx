@@ -181,7 +181,7 @@ export function PinEntry({ onUnlock }: PinEntryProps) {
                   ]}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color="#f4f4f5" />
                   ) : (
                     <Text style={styles.buttonText}>Unlock</Text>
                   )}
@@ -212,12 +212,12 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "rgba(24, 24, 27, 0.6)",
     borderWidth: 1,
-    borderColor: "rgba(99, 102, 241, 0.2)",
+    borderColor: "rgba(39, 39, 42, 0.8)",
     borderRadius: 32,
     padding: 40,
     width: "100%",
     maxWidth: 448,
-    shadowColor: "#6366F1",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 24,
@@ -231,12 +231,12 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "rgba(99, 102, 241, 0.15)",
+    backgroundColor: "rgba(39, 39, 42, 0.6)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: "rgba(99, 102, 241, 0.3)",
+    borderColor: "rgba(63, 63, 70, 0.8)",
   },
   icon: {
     fontSize: 40,
@@ -274,17 +274,17 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 14,
     fontFamily: "Nunito_400Regular",
-    color: "#ef4444",
+    color: "#fca5a5",
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#6366F1",
+    backgroundColor: "#27272a",
     height: 56,
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
-    shadowColor: "#6366F1",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   buttonText: {
-    color: "#fff",
+    color: "#f4f4f5",
     fontSize: 18,
     fontFamily: "Nunito_700Bold",
     letterSpacing: 0.5,
