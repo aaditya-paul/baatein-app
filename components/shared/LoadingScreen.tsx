@@ -58,8 +58,8 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
     // Floating orbs with different timings
     orb1.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sine) }),
-        withTiming(0, { duration: 2000, easing: Easing.inOut(Easing.sine) })
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 2000, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       false
@@ -67,8 +67,8 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
 
     orb2.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sine) }),
-        withTiming(0, { duration: 2500, easing: Easing.inOut(Easing.sine) })
+        withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 2500, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       false
@@ -76,8 +76,8 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
 
     orb3.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.sine) }),
-        withTiming(0, { duration: 3000, easing: Easing.inOut(Easing.sine) })
+        withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 3000, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       false

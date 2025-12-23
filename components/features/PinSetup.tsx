@@ -10,7 +10,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 interface PinSetupProps {
   onComplete: (pin: string) => Promise<void>;
@@ -56,150 +56,120 @@ export function PinSetup({ onComplete }: PinSetupProps) {
   };
 
   return (
-    <View style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Animated.View entering={FadeIn.duration(400)} style={styles.card}>
-            <Animated.View
-              entering={FadeInDown.delay(100).duration(400)}
-              style={styles.header}
-            >
-              <View style={styles.iconContainer}>
-                <Text style={styles.icon}>🔒</Text>
-              </View>
-              <Text style={styles.title}>Set Your Data PIN</Text>
-              <Text style={styles.subtitle}>
-                This PIN encrypts your journal.{" "}
-                <Text style={styles.warningText}>
-                  If you lose it, your data cannot be recovered.
-                </Text>
+        <Animated.View entering={FadeIn.duration(400)} style={styles.card}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Set Your PIN</Text>
+            <Text style={styles.subtitle}>
+              This PIN encrypts your journal.{" "}
+              <Text style={styles.warningText}>
+                If you lose it, your data cannot be recovered.
               </Text>
-            </Animated.View>
+            </Text>
+          </View>
 
-            <View style={styles.form}>
-              <View>
-                <Text style={styles.label}>Enter PIN</Text>
-                <TextInput
-                  secureTextEntry
-                  placeholder="Enter 4 Digit Pin"
-                  placeholderTextColor="#71717a"
-                  value={pin}
-                  onChangeText={handlePinChange}
-                  keyboardType="number-pad"
-                  maxLength={4}
-                  style={styles.input}
-                />
-              </View>
-
-              <View>
-                <Text style={styles.label}>Confirm PIN</Text>
-                <TextInput
-                  secureTextEntry
-                  placeholder="Re-enter your PIN"
-                  placeholderTextColor="#71717a"
-                  value={confirmPin}
-                  onChangeText={handleConfirmPinChange}
-                  keyboardType="number-pad"
-                  maxLength={4}
-                  style={styles.input}
-                  onSubmitEditing={handleSubmit}
-                />
-              </View>
-
-              {error ? <Text style={styles.error}>{error}</Text> : null}
-
-              <Pressable
-                onPress={handleSubmit}
-                disabled={loading || !pin || !confirmPin}
-                style={({ pressed }) => [
-                  styles.button,
-                  (loading || !pin || !confirmPin) && styles.buttonDisabled,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.buttonText}>
-                    {loading ? "Setting up..." : "Continue"}
-                  </Text>
-                )}
-              </Pressable>
+          <View style={styles.form}>
+            <View>
+              <Text style={styles.label}>Enter PIN</Text>
+              <TextInput
+                secureTextEntry
+                placeholder="Enter 4 Digit PIN"
+                placeholderTextColor="#52525b"
+                value={pin}
+                onChangeText={handlePinChange}
+                keyboardType="number-pad"
+                maxLength={4}
+                style={styles.input}
+              />
             </View>
-          </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+
+            <View>
+              <Text style={styles.label}>Confirm PIN</Text>
+              <TextInput
+                secureTextEntry
+                placeholder="Re-enter your PIN"
+                placeholderTextColor="#52525b"
+                value={confirmPin}
+                onChangeText={handleConfirmPinChange}
+                keyboardType="number-pad"
+                maxLength={4}
+                style={styles.input}
+                onSubmitEditing={handleSubmit}
+              />
+            </View>
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <Pressable
+              onPress={handleSubmit}
+              disabled={loading || !pin || !confirmPin}
+              style={({ pressed }) => [
+                styles.button,
+                (loading || !pin || !confirmPin) && styles.buttonDisabled,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              {loading ? (
+                <ActivityIndicator color="#09090b" />
+              ) : (
+                <Text style={styles.buttonText}>Continue</Text>
+              )}
+            </Pressable>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(11, 11, 14, 0.95)",
-  },
-  keyboardView: {
-    flex: 1,
+    backgroundColor: "#09090b",
   },
   scrollContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 24,
+    padding: 32,
   },
   card: {
-    backgroundColor: "rgba(39, 39, 42, 0.2)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 24,
-    padding: 32,
     width: "100%",
-    maxWidth: 448,
+    maxWidth: 400,
   },
   header: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  icon: {
-    fontSize: 32,
+    marginBottom: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 32,
+    fontFamily: "Nunito_700Bold",
     color: "#f4f4f5",
-    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#a1a1aa",
-    textAlign: "center",
-    marginTop: 8,
+    fontSize: 13,
+    fontFamily: "Nunito_400Regular",
+    color: "#71717a",
+    lineHeight: 20,
   },
   warningText: {
-    fontWeight: "700",
+    fontFamily: "Nunito_700Bold",
+    color: "#ef4444",
   },
   form: {
-    gap: 16,
+    gap: 24,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#f4f4f5",
+    fontSize: 13,
+    fontFamily: "Nunito_700Bold",
+    color: "#a1a1aa",
     marginBottom: 8,
   },
   input: {
@@ -207,23 +177,25 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#3f3f46",
+    borderColor: "#27272a",
     backgroundColor: "transparent",
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     fontSize: 18,
+    fontFamily: "Nunito_700Bold",
     color: "#f4f4f5",
     textAlign: "center",
-    letterSpacing: 8,
+    letterSpacing: 6,
   },
   error: {
-    fontSize: 14,
+    fontSize: 13,
+    fontFamily: "Nunito_400Regular",
     color: "#ef4444",
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#6366F1",
-    height: 56,
-    borderRadius: 999,
+    backgroundColor: "#f4f4f5",
+    height: 48,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
@@ -235,8 +207,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: "#09090b",
+    fontSize: 15,
+    fontFamily: "Nunito_700Bold",
   },
 });
