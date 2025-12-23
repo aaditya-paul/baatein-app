@@ -28,7 +28,8 @@ export const Colors = {
   
   // Feedback (destructive only - no success/warning colors)
   destructive: "#7f1d1d",        // Dark blood-red - serious errors only
-  destructiveForeground: "#fef2f2", // High readability on destructive
+  destructiveForeground: "#fef2f2", // High readability on destructive background
+  destructiveText: "#fca5a5",    // Error text on dark backgrounds - better visibility
   
   // Selection & highlights
   selection: "rgba(161, 161, 170, 0.15)", // Dark gray, low opacity
