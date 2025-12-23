@@ -246,7 +246,7 @@ export default function WelcomeScreen() {
             ]}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color="#f4f4f5" size="small" />
             ) : (
               <Text style={styles.buttonText}>Enter the Quiet Space</Text>
             )}
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: "#6366F1",
+    backgroundColor: "#27272a",
   },
   floatingOrb2: {
     position: "absolute",
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: "#8B5CF6",
+    backgroundColor: "#27272a",
   },
   content: {
     alignItems: "center",
@@ -334,16 +334,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(99, 102, 241, 0.08)",
+    backgroundColor: "rgba(39, 39, 42, 0.5)",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(99, 102, 241, 0.2)",
+    borderColor: "rgba(63, 63, 70, 0.6)",
   },
   featureIcon: {
     fontSize: 12,
-    color: "#6366F1",
+    color: "#a1a1aa",
   },
   featureText: {
     fontSize: 13,
@@ -355,12 +355,12 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    backgroundColor: "#6366F1",
+    backgroundColor: "#27272a",
     paddingVertical: 20,
     paddingHorizontal: 48,
     borderRadius: 999,
     alignItems: "center",
-    shadowColor: "#6366F1",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
     shadowRadius: 16,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
   },
   buttonText: {
-    color: "#fff",
+    color: "#f4f4f5",
     fontSize: 18,
     fontFamily: "Nunito_700Bold",
     letterSpacing: 0.5,

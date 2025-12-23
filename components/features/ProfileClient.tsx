@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     fontFamily: "Nunito_700Bold",
-    color: "#6366F1",
+    color: "#a1a1aa",
   },
   headerTitle: {
     fontSize: 24,
@@ -248,11 +248,11 @@ const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: "rgba(24, 24, 27, 0.6)",
     borderWidth: 1,
-    borderColor: "rgba(99, 102, 241, 0.2)",
+    borderColor: "rgba(39, 39, 42, 0.8)",
     borderRadius: 24,
     padding: 32,
     marginBottom: 24,
-    shadowColor: "#6366F1",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     height: 96,
     borderRadius: 48,
     borderWidth: 2,
-    borderColor: "rgba(99, 102, 241, 0.3)",
+    borderColor: "rgba(63, 63, 70, 0.8)",
     marginBottom: 16,
   },
   avatarPlaceholder: {
@@ -318,8 +318,8 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   deleteButton: {
-    borderColor: "rgba(239, 68, 68, 0.3)",
-    backgroundColor: "rgba(239, 68, 68, 0.05)",
+    borderColor: "rgba(127, 29, 29, 0.6)",
+    backgroundColor: "rgba(127, 29, 29, 0.1)",
   },
   actionIcon: {
     fontSize: 20,
@@ -330,12 +330,12 @@ const styles = StyleSheet.create({
     color: "#f4f4f5",
   },
   deleteText: {
-    color: "#ef4444",
+    color: "#fca5a5",
   },
   warning: {
-    backgroundColor: "rgba(239, 68, 68, 0.05)",
+    backgroundColor: "rgba(127, 29, 29, 0.08)",
     borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.2)",
+    borderColor: "rgba(127, 29, 29, 0.3)",
     borderRadius: 24,
     padding: 20,
   },
@@ -347,6 +347,6 @@ const styles = StyleSheet.create({
   },
   warningBold: {
     fontFamily: "Nunito_700Bold",
-    color: "#ef4444",
+    color: "#fca5a5",
   },
 });
